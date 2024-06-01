@@ -1,0 +1,97 @@
+import json
+import logging
+import time
+
+# Logging setup
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Load tasks from a file
+def load_tasks():
+    try:
+        with open("tasks.txt", "r") as file:
+            tasks = json.load(file)
+    except FileNotFoundError:
+        tasks = []
+    return tasks
+
+# Save tasks to a file
+def save_tasks(tasks):
+    with open("tasks.txt", "w") as file:
+        json.dump(tasks, file)
+
+# Add a task with improved functionality
+def add_task(task, priority):
+    start_time = time.time()
+    try:
+        if not task:
+            raise ValueError("Task cannot be empty")
+        if priority not in ["high", "medium", "low"]:
+            raise ValueError("Priority must be 'high', 'medium', or 'low'")
+        
+        tasks.append({"task": task, "priority": priority})
+        logging.info(f"Task added: {task} with priority {priority}")
+        print("Task added!")
+    
+    except Exception as e:
+        logging.error(f"Error occurred: {e}")
+        print(f"Failed to add task: {e}")
+    
+    finally:
+        end_time = time.time()
+        logging.info(f"Performance: add_task function took {end_time - start_time:.6f} seconds")
+
+# Remove a task
+def remove_task():
+    if len(tasks) > 0:
+        print("Select the number of the task you want to remove:")
+        for i, t in enumerate(tasks):
+            print(f"{i+1}. {t['task']} - Priority: {t['priority']}")
+        
+        try:
+            task_number = int(input("Enter the task number: "))
+            if 1 <= task_number <= len(tasks):
+                removed_task = tasks.pop(task_number - 1)
+                logging.info(f"Task removed: {removed_task}")
+            else:
+                logging.warning("Task number is out of range")
+        except ValueError:
+            logging.error("Invalid input. Please enter a valid number.")
+
+# View all tasks
+def view_tasks():
+    if len(tasks) > 0:
+        print("Tasks:")
+        for i, t in enumerate(tasks):
+            print(f"{i+1}. {t['task']} - Priority: {t['priority']}")
+    else:
+        print("No tasks yet!")
+    logging.info("Viewed all tasks")
+
+# Main program loop
+tasks = load_tasks()
+
+while True:
+    print("What would you like to do?")
+    print("1. Add a task")
+    print("2. Remove a task")
+    print("3. View all tasks")
+    print("4. Quit")
+
+    choice = input("Enter your choice (1-4): ")
+
+    if choice == "1":
+        task = input("Enter the task: ")
+        priority = input("Enter the priority (high, medium, low): ")
+        add_task(task, priority)
+        save_tasks(tasks)
+    elif choice == "2":
+        remove_task()
+        save_tasks(tasks)
+    elif choice == "3":
+        view_tasks()
+    elif choice == "4":
+        print("Goodbye!")
+        save_tasks(tasks)
+        break
+    else:
+        print("Invalid choice. Please try again.")
